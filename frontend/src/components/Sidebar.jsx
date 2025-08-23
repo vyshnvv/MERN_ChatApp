@@ -104,8 +104,6 @@ const Sidebar = () => {
         </div>
       </div>
 
-
-
       {/* Contacts List */}
       <div className="flex-1 overflow-y-auto py-2">
         {filteredUsers.length === 0 ? (

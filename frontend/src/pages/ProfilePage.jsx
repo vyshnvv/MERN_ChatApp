@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
+import toast from "react-hot-toast";
 import {
   Camera,
   Mail,
@@ -7,30 +8,74 @@ import {
   Calendar,
   Shield,
   Edit3,
-  Settings,
   Crown,
   Sparkles,
   CheckCircle,
   Upload,
+  Save,
+  X,
+  Lock,
+  Loader2,
 } from "lucide-react";
+import ChangePasswordModal from "../components/ChangePasswordModal"; // Ensure this component is created and imported
 
 const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
 
+  // State for editing full name
+  const [isEditing, setIsEditing] = useState(false);
+  const [newFullName, setNewFullName] = useState(authUser?.fullName || "");
+
+  // State for password modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Effect to update local state if authUser changes
+  useEffect(() => {
+    if (authUser) {
+      setNewFullName(authUser.fullName);
+    }
+  }, [authUser]);
+
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
+    // Optional: Add a file size check
+    if (file.size > 2 * 1024 * 1024) {
+      // 2MB limit
+      return toast.error("File is too large. Maximum size is 2MB.");
+    }
 
+    const reader = new FileReader();
     reader.readAsDataURL(file);
 
     reader.onload = async () => {
       const base64Image = reader.result;
-      setSelectedImg(base64Image);
+      setSelectedImg(base64Image); // Show preview immediately
       await updateProfile({ profilePic: base64Image });
+      setSelectedImg(null); // Clear preview after successful upload
     };
+
+    reader.onerror = () => {
+      toast.error("Failed to read the image file.");
+    };
+  };
+
+  const handleSaveFullName = async () => {
+    if (!newFullName || newFullName.trim().length < 3) {
+      return toast.error("Full name must be at least 3 characters");
+    }
+    if (newFullName.trim() === authUser?.fullName) {
+      return setIsEditing(false); // No changes were made
+    }
+    await updateProfile({ fullName: newFullName.trim() });
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setNewFullName(authUser?.fullName);
+    setIsEditing(false);
   };
 
   return (
@@ -50,9 +95,9 @@ const ProfilePage = () => {
             Your Profile
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Profile
+            Profile Settings
             <span className="block text-xl font-normal text-gray-600 mt-1">
-              Manage your account information
+              Manage your account information and preferences
             </span>
           </h1>
         </div>
@@ -91,7 +136,7 @@ const ProfilePage = () => {
                         type="file"
                         id="avatar-upload"
                         className="hidden"
-                        accept="image/*"
+                        accept="image/png, image/jpeg"
                         onChange={handleImageUpload}
                         disabled={isUpdatingProfile}
                       />
@@ -104,12 +149,12 @@ const ProfilePage = () => {
                   </h2>
                   <p className="text-gray-600 mt-1">
                     {isUpdatingProfile ? (
-                      <span className="inline-flex items-center gap-2">
+                      <span className="inline-flex items-center gap-2 text-purple-600">
                         <Upload className="w-4 h-4 animate-bounce" />
-                        Uploading photo...
+                        Updating profile...
                       </span>
                     ) : (
-                      "Click the camera icon to update your photo"
+                      "Click the camera to update your photo"
                     )}
                   </p>
                 </div>
@@ -118,21 +163,63 @@ const ProfilePage = () => {
               {/* Profile Information */}
               <div className="space-y-6">
                 <div className="grid gap-6">
+                  {/* Full Name Editing Section */}
                   <div className="group">
                     <label className="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
                       <User className="w-4 h-4" />
                       Full Name
                     </label>
                     <div className="relative">
-                      <div className="w-full px-4 py-4 bg-gray-50/50 border-2 border-gray-200 rounded-2xl text-gray-900 font-medium">
-                        {authUser?.fullName}
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={newFullName}
+                          onChange={(e) => setNewFullName(e.target.value)}
+                          className="w-full px-4 py-4 bg-white border-2 border-purple-400 rounded-2xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-purple-300 transition-all"
+                          autoFocus
+                        />
+                      ) : (
+                        <div className="w-full px-4 py-4 bg-gray-50/50 border-2 border-gray-200 rounded-2xl text-gray-900 font-medium">
+                          {authUser?.fullName}
+                        </div>
+                      )}
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                        {isEditing ? (
+                          <>
+                            <button
+                              onClick={handleSaveFullName}
+                              className="text-green-500 hover:text-green-700 disabled:text-gray-400 transition-colors"
+                              disabled={isUpdatingProfile}
+                              aria-label="Save full name"
+                            >
+                              {isUpdatingProfile ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                              ) : (
+                                <Save className="w-5 h-5" />
+                              )}
+                            </button>
+                            <button
+                              onClick={handleCancelEdit}
+                              className="text-red-500 hover:text-red-700 transition-colors"
+                              aria-label="Cancel editing"
+                            >
+                              <X className="w-5 h-5" />
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => setIsEditing(true)}
+                            className="text-gray-400 hover:text-purple-600 transition-colors"
+                            aria-label="Edit full name"
+                          >
+                            <Edit3 className="w-5 h-5" />
+                          </button>
+                        )}
                       </div>
-                      <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600 transition-colors">
-                        <Edit3 className="w-4 h-4" />
-                      </button>
                     </div>
                   </div>
 
+                  {/* Email Address Section */}
                   <div className="group">
                     <label className="text-sm font-semibold text-gray-700 flex items-center gap-2 mb-2">
                       <Mail className="w-4 h-4" />
@@ -142,8 +229,9 @@ const ProfilePage = () => {
                       <div className="w-full px-4 py-4 bg-gray-50/50 border-2 border-gray-200 rounded-2xl text-gray-900 font-medium">
                         {authUser?.email}
                       </div>
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500">
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500 flex items-center gap-1 text-sm">
                         <CheckCircle className="w-4 h-4" />
+                        <span className="hidden sm:inline">Verified</span>
                       </div>
                     </div>
                   </div>
@@ -152,16 +240,15 @@ const ProfilePage = () => {
                 {/* Quick Actions */}
                 <div className="pt-6 border-t border-gray-200/50">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Quick Actions
+                    Security
                   </h3>
                   <div className="flex flex-wrap gap-3">
-                    <button className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-xl transition-all duration-300 hover:scale-105 shadow-lg">
-                      <Edit3 className="w-4 h-4" />
-                      Edit Profile
-                    </button>
-                    <button className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-300 hover:scale-105">
-                      <Settings className="w-4 h-4" />
-                      Settings
+                    <button
+                      onClick={() => setIsModalOpen(true)}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"
+                    >
+                      <Lock className="w-4 h-4" />
+                      Change Password
                     </button>
                   </div>
                 </div>
@@ -213,59 +300,20 @@ const ProfilePage = () => {
                     </span>
                   </div>
                   <span className="text-sm text-gray-900 font-semibold">
-                    {authUser.createdAt?.split("T")[0]}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl">
-                  <div className="flex items-center gap-3">
-                    <Shield className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-700">
-                      Verification
-                    </span>
-                  </div>
-                  <span className="inline-flex items-center gap-1 text-sm text-green-600 font-semibold">
-                    <CheckCircle className="w-4 h-4" />
-                    Verified
+                    {new Date(authUser.createdAt).toLocaleDateString()}
                   </span>
                 </div>
               </div>
-            </div>
-
-            {/* Premium Features Card */}
-            <div className="bg-gradient-to-br from-purple-500 to-blue-500 rounded-3xl shadow-2xl p-6 text-white">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold">Premium Features</h3>
-                  <p className="text-sm text-white/80">
-                    Unlock more capabilities
-                  </p>
-                </div>
-              </div>
-              <ul className="space-y-2 text-sm mb-4">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-300" />
-                  Unlimited file sharing
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-300" />
-                  Advanced security
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-300" />
-                  Priority support
-                </li>
-              </ul>
-              <button className="w-full py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-2xl font-semibold transition-all duration-300 hover:scale-105">
-                Upgrade Now
-              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* RENDER THE MODAL */}
+      <ChangePasswordModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };

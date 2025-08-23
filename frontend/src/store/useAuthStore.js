@@ -16,6 +16,7 @@ export const useAuthStore = create((set, get) => ({
   isUpdatingProfile: false,
   isCheckingAuth: true,
   isLoggingOut: false,
+  isChangingPassword: false,
   onlineUsers: [],
   socket: null,
 
@@ -23,31 +24,23 @@ export const useAuthStore = create((set, get) => ({
     const operationId = Date.now() + Math.random();
     lastAuthOperation = operationId;
 
-    // If not immediate, debounce the auth check
     if (!immediate && authCheckTimeout) {
       clearTimeout(authCheckTimeout);
     }
 
     const executeAuthCheck = async () => {
-      // Check if this is still the latest auth check request
       if (lastAuthOperation !== operationId) {
-        console.log("Auth check cancelled - newer request exists");
         return;
       }
 
-      console.log("Starting auth check...");
       set({ isCheckingAuth: true });
 
       try {
         const res = await axiosInstance.get("/auth/check");
 
-        // Check again if this is still the latest request
         if (lastAuthOperation !== operationId) {
-          console.log("Auth check cancelled during request");
           return;
         }
-
-        console.log("Auth check success:", res.data);
 
         if (
           typeof res.data === "object" &&
@@ -57,30 +50,22 @@ export const useAuthStore = create((set, get) => ({
           set({ authUser: res.data });
           get().connectSocket();
         } else {
-          console.log("Received HTML instead of JSON - API connection issue");
           set({ authUser: null });
         }
       } catch (error) {
-        // Only process if this is still the latest request
         if (lastAuthOperation !== operationId) {
-          console.log("Auth check error ignored - newer request exists");
           return;
         }
 
-        console.log(
+        // No need to show a toast error on initial auth check failures
+        console.error(
           "Auth check failed:",
           error.response?.data?.message || error.message
         );
 
-        if (error.response?.status === 401) {
-          console.log("User not authenticated");
-        }
-
         set({ authUser: null });
       } finally {
-        // Only update loading state if this is still the latest request
         if (lastAuthOperation === operationId) {
-          console.log("Auth check completed");
           set({ isCheckingAuth: false });
         }
       }
@@ -89,12 +74,11 @@ export const useAuthStore = create((set, get) => ({
     if (immediate) {
       await executeAuthCheck();
     } else {
-      authCheckTimeout = setTimeout(executeAuthCheck, 100); // 100ms debounce
+      authCheckTimeout = setTimeout(executeAuthCheck, 100);
     }
   },
 
   signUp: async (data) => {
-    // Cancel any pending auth checks
     if (authCheckTimeout) {
       clearTimeout(authCheckTimeout);
       authCheckTimeout = null;
@@ -108,14 +92,16 @@ export const useAuthStore = create((set, get) => ({
       toast.success("Account created successfully");
       get().connectSocket();
     } catch (error) {
-      toast.error(error.response.data.message);
+      // UPDATED: Robust error handling
+      toast.error(
+        error.response?.data?.message || "Sign up failed. Please try again."
+      );
     } finally {
       set({ isSigningUp: false });
     }
   },
 
   login: async (data) => {
-    // Cancel any pending auth checks
     if (authCheckTimeout) {
       clearTimeout(authCheckTimeout);
       authCheckTimeout = null;
@@ -127,17 +113,19 @@ export const useAuthStore = create((set, get) => ({
       const res = await axiosInstance.post("/auth/login", data);
       set({ authUser: res.data });
       toast.success("Logged in successfully");
-
       get().connectSocket();
     } catch (error) {
-      toast.error(error.response?.data?.message || "Login failed");
+      // UPDATED: Robust error handling
+      toast.error(
+        error.response?.data?.message ||
+          "Login failed. Please check your credentials."
+      );
     } finally {
       set({ isLoggingIn: false });
     }
   },
 
   logout: async (navigate) => {
-    // Immediately cancel any auth checks
     if (authCheckTimeout) {
       clearTimeout(authCheckTimeout);
       authCheckTimeout = null;
@@ -147,38 +135,30 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoggingOut: true, isCheckingAuth: false });
 
     try {
-      console.log("Logging out...");
-
-      // Disconnect socket first
       get().disconnectSocket();
-
-      // Clear the user state immediately
       set({ authUser: null });
 
-      // Make the API call
-      const response = await axiosInstance.post("/auth/logout");
-      console.log("Logout response:", response.data);
+      await axiosInstance.post("/auth/logout");
 
-      // Navigate after API call
       if (navigate) {
         navigate("/login", { replace: true });
       }
 
       toast.success("Logged out successfully");
     } catch (error) {
-      console.log("Logout error:", error);
+      // UPDATED: Robust error handling
+      console.error("Logout error:", error);
 
+      // Ensure user is logged out on the client even if the server call fails
       set({ authUser: null });
 
       if (navigate) {
         navigate("/login", { replace: true });
       }
 
-      if (error.response?.status === 401) {
-        toast.success("Logged out successfully");
-      } else {
-        toast.error(error.response?.data?.message || "Logout failed");
-      }
+      toast.error(
+        error.response?.data?.message || "Logout failed. Please try again."
+      );
     } finally {
       set({ isLoggingOut: false });
     }
@@ -191,10 +171,35 @@ export const useAuthStore = create((set, get) => ({
       set({ authUser: res.data });
       toast.success("Profile updated successfully");
     } catch (error) {
-      console.log("error in update profile:", error);
-      toast.error(error.response.data.message);
+      // UPDATED: Robust error handling
+      console.error("error in update profile:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Profile update failed. Please try again."
+      );
     } finally {
       set({ isUpdatingProfile: false });
+    }
+  },
+
+  changePassword: async (passwordData) => {
+    set({ isChangingPassword: true });
+    try {
+      const res = await axiosInstance.post(
+        "/auth/change-password",
+        passwordData
+      );
+      toast.success(res.data.message);
+      return true; // Indicate success
+    } catch (error) {
+      console.error("error in change password:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to change password. Please try again."
+      );
+      return false; // Indicate failure
+    } finally {
+      set({ isChangingPassword: false });
     }
   },
 
@@ -207,11 +212,8 @@ export const useAuthStore = create((set, get) => ({
     }
 
     if (socket?.connected) {
-      console.log("Socket already connected");
       return;
     }
-
-    console.log("Connecting socket for user:", authUser._id);
 
     const newSocket = io(BASE_URL, {
       query: {
@@ -234,7 +236,6 @@ export const useAuthStore = create((set, get) => ({
     });
 
     newSocket.on("getOnlineUsers", (userIds) => {
-      console.log("Online users updated:", userIds);
       set({ onlineUsers: userIds });
     });
   },
@@ -242,9 +243,8 @@ export const useAuthStore = create((set, get) => ({
   disconnectSocket: () => {
     const { socket } = get();
     if (socket?.connected) {
-      console.log("Disconnecting socket");
       socket.disconnect();
     }
-    set({ socket: null });
+    set({ socket: null, onlineUsers: [] });
   },
 }));

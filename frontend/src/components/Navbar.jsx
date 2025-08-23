@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore.js";
@@ -63,24 +64,6 @@ const Navbar = () => {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2">
-            {/* Notifications */}
-            <button className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-300 group relative">
-              <Bell className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full border-2 border-white shadow-sm"></span>
-            </button>
-
-            {/* Settings */}
-            <Link
-              to="/settings"
-              className={`p-2 rounded-xl transition-all duration-300 group ${
-                isActive("/settings")
-                  ? "text-purple-600 bg-purple-50"
-                  : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
-              }`}
-            >
-              <Settings className="w-5 h-5 group-hover:scale-110 transition-transform" />
-            </Link>
-
             {/* User Profile Dropdown */}
             <div className="relative ml-2">
               <button
@@ -136,14 +119,6 @@ const Navbar = () => {
                   >
                     <User className="w-4 h-4" />
                     Profile
-                  </Link>
-                  <Link
-                    to="/settings"
-                    onClick={() => setShowUserMenu(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all duration-300"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Settings
                   </Link>
                   <button
                     onClick={handleLogout}

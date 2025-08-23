@@ -110,25 +110,78 @@ export const logout = (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { profilePic } = req.body;
+    const { fullName, profilePic } = req.body;
     const userId = req.user._id;
 
-    if (!profilePic) {
-      return res.status(400).json({ message: "Profile pic is required" });
+    let updatedFields = {};
+
+    // Handle profile picture upload
+    if (profilePic) {
+      const uploadResponse = await cloudinary.uploader.upload(profilePic);
+      updatedFields.profilePic = uploadResponse.secure_url;
     }
 
-    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    // Handle full name update
+    if (fullName) {
+      if (fullName.trim().length < 3) {
+        return res
+          .status(400)
+          .json({ message: "Full name must be at least 3 characters" });
+      }
+      updatedFields.fullName = fullName;
+    }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { profilePic: uploadResponse.secure_url },
-      { new: true }
-    );
+    if (Object.keys(updatedFields).length === 0) {
+      return res.status(400).json({ message: "No update data provided" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updatedFields, {
+      new: true,
+    }).select("-password"); // Exclude password from the response
 
     res.status(200).json(updatedUser);
   } catch (error) {
     console.log("Error in update profile", error.message);
-    res.status(500).json({ message: "Internal Sever Error" });
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// ADD THIS ENTIRE NEW FUNCTION
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user._id;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (newPassword.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "New password must be at least 6 characters" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isPassCorrect = await bcrypt.compare(currentPassword, user.password);
+    if (!isPassCorrect) {
+      return res.status(400).json({ message: "Invalid current password" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.log("Error in changePassword controller", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
