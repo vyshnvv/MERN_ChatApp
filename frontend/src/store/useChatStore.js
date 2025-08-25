@@ -2,6 +2,7 @@ import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
 import { useAuthStore } from "./useAuthStore";
+import { useChatRoomStore } from "./useChatRoomStore";
 
 export const useChatStore = create((set, get) => ({
   messages: [],
@@ -16,7 +17,7 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get("/messages/users");
       set({ users: res.data });
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Error fetching users");
     } finally {
       set({ isUsersLoading: false });
     }
@@ -28,7 +29,7 @@ export const useChatStore = create((set, get) => ({
       const res = await axiosInstance.get(`/messages/${userId}`);
       set({ messages: res.data });
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Error fetching messages");
     } finally {
       set({ isMessagesLoading: false });
     }
@@ -43,7 +44,7 @@ export const useChatStore = create((set, get) => ({
       );
       set({ messages: [...messages, res.data] });
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Error sending message");
     }
   },
 
@@ -53,10 +54,8 @@ export const useChatStore = create((set, get) => ({
 
     const socket = useAuthStore.getState().socket;
 
-    // Check if socket exists and is connected
     if (!socket || !socket.connected) {
       console.warn("Socket not connected, retrying in 1 second...");
-      // Retry after a short delay to allow socket to connect
       setTimeout(() => {
         const retrySocket = useAuthStore.getState().socket;
         if (retrySocket && retrySocket.connected) {
@@ -87,15 +86,19 @@ export const useChatStore = create((set, get) => ({
 
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
-
-    // Check if socket exists before trying to unsubscribe
     if (!socket) {
       console.warn("Socket not available for unsubscribing");
       return;
     }
-
     socket.off("newMessage");
   },
 
-  setSelectedUser: (selectedUser) => set({ selectedUser }),
+  setSelectedUser: (selectedUser) => {
+    // 1. Update its own state
+    set({ selectedUser });
+    // 2. Reset the other store's state directly
+    if (selectedUser) {
+      useChatRoomStore.setState({ selectedChatRoom: null });
+    }
+  },
 }));

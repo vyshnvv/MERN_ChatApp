@@ -1,9 +1,7 @@
-// src/components/ChangePasswordModal.jsx
-
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import toast from "react-hot-toast";
-import { Lock, Eye, EyeOff, Loader2, X } from "lucide-react";
+import { Lock, Eye, EyeOff, Loader2, X, Sparkles } from "lucide-react";
 
 const ChangePasswordModal = ({ isOpen, onClose }) => {
   const { changePassword, isChangingPassword } = useAuthStore();
@@ -37,7 +35,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
     });
 
     if (success) {
-      onClose(); // Close modal on success
+      onClose();
       setFormData({
         currentPassword: "",
         newPassword: "",
@@ -49,87 +47,60 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 w-full max-w-md relative">
+    <div className="modal modal-open">
+      <div className="modal-box relative bg-base-100 backdrop-blur-md border border-base-300 shadow-xl p-8 max-w-md">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-red-600 transition-colors"
+          className="btn btn-sm btn-circle absolute right-4 top-4"
         >
-          <X className="w-6 h-6" />
+          <X className="w-4 h-4" />
         </button>
 
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-          Change Your Password
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Current Password */}
-          <div className="relative">
-            <input
-              type={showPass.current ? "text" : "password"}
-              name="currentPassword"
-              value={formData.currentPassword}
-              onChange={handleInputChange}
-              placeholder="Current Password"
-              className="w-full pl-12 pr-12 py-4 bg-gray-50/50 border-2 border-gray-200 rounded-2xl focus:border-purple-500 focus:bg-white transition-all duration-300 outline-none text-gray-900"
-            />
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <button
-              type="button"
-              onClick={() =>
-                setShowPass({ ...showPass, current: !showPass.current })
-              }
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              {showPass.current ? <EyeOff /> : <Eye />}
-            </button>
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-8 h-8 text-primary-content" />
           </div>
+          <h2 className="text-2xl font-bold text-base-content">
+            Change Password
+          </h2>
+          <p className="text-base-content/70 mt-2">
+            Update your password for enhanced security.
+          </p>
+        </div>
 
-          {/* New Password */}
-          <div className="relative">
-            <input
-              type={showPass.new ? "text" : "password"}
-              name="newPassword"
-              value={formData.newPassword}
-              onChange={handleInputChange}
-              placeholder="New Password"
-              className="w-full pl-12 pr-12 py-4 bg-gray-50/50 border-2 border-gray-200 rounded-2xl focus:border-purple-500 focus:bg-white transition-all duration-300 outline-none text-gray-900"
-            />
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <button
-              type="button"
-              onClick={() => setShowPass({ ...showPass, new: !showPass.new })}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              {showPass.new ? <EyeOff /> : <Eye />}
-            </button>
-          </div>
-
-          {/* Confirm New Password */}
-          <div className="relative">
-            <input
-              type={showPass.confirm ? "text" : "password"}
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              placeholder="Confirm New Password"
-              className="w-full pl-12 pr-12 py-4 bg-gray-50/50 border-2 border-gray-200 rounded-2xl focus:border-purple-500 focus:bg-white transition-all duration-300 outline-none text-gray-900"
-            />
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <button
-              type="button"
-              onClick={() =>
-                setShowPass({ ...showPass, confirm: !showPass.confirm })
-              }
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              {showPass.confirm ? <EyeOff /> : <Eye />}
-            </button>
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <InputField
+            name="currentPassword"
+            value={formData.currentPassword}
+            onChange={handleInputChange}
+            show={showPass.current}
+            onToggle={() =>
+              setShowPass({ ...showPass, current: !showPass.current })
+            }
+            placeholder="Current Password"
+          />
+          <InputField
+            name="newPassword"
+            value={formData.newPassword}
+            onChange={handleInputChange}
+            show={showPass.new}
+            onToggle={() => setShowPass({ ...showPass, new: !showPass.new })}
+            placeholder="New Password"
+          />
+          <InputField
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleInputChange}
+            show={showPass.confirm}
+            onToggle={() =>
+              setShowPass({ ...showPass, confirm: !showPass.confirm })
+            }
+            placeholder="Confirm New Password"
+          />
 
           <button
             type="submit"
-            className="w-full py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xl"
+            className="btn btn-primary w-full mt-4"
             disabled={isChangingPassword}
           >
             {isChangingPassword ? (
@@ -138,13 +109,44 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                 Updating...
               </>
             ) : (
-              "Update Password"
+              <>
+                <Sparkles className="w-5 h-5" />
+                Update Password
+              </>
             )}
           </button>
         </form>
       </div>
+      <div className="modal-backdrop" onClick={onClose}></div>
     </div>
   );
 };
+
+// Reusable InputField sub-component
+const InputField = ({ name, value, onChange, show, onToggle, placeholder }) => (
+  <div className="form-control">
+    <label className="label">
+      <span className="label-text">{placeholder}</span>
+    </label>
+    <div className="relative">
+      <input
+        type={show ? "text" : "password"}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="input input-bordered w-full pl-12 pr-12"
+      />
+      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/50" />
+      <button
+        type="button"
+        onClick={onToggle}
+        className="absolute right-4 top-1/2 -translate-y-1/2 btn btn-ghost btn-xs"
+      >
+        {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+      </button>
+    </div>
+  </div>
+);
 
 export default ChangePasswordModal;

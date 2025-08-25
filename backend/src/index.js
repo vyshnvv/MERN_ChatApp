@@ -6,6 +6,7 @@ import { connectDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import { io, app, server } from "./lib/socket.js";
+import roomRoutes from "../src/routes/room.route.js";
 import path from "path";
 
 // Load environment variables from .env file
@@ -20,11 +21,15 @@ app.use(
   })
 );
 
+app.use(express.json({ limit: "5mb" }));
+app.use(express.urlencoded({ extended: true, limit: "5mb" }));
+
 const PORT = process.env.PORT;
 const __dirname = path.resolve();
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/rooms", roomRoutes);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend", "dist")));
