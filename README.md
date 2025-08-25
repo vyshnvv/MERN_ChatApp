@@ -66,13 +66,13 @@ Create a .env file inside the server/ directory with the following content:
 
 ```bash
 PORT=5001
-MONGO_URI=your_mongodb_atlas_connection_string
-JWT_SECRET=your_jwt_secret_key
-CLOUDINARY_CLOUD_NAME=your_cloudinary_environment_name
-CLOUDINARY_API_KEY=your_cloudinary_environment_api
-CLOUDINARY_API_SECRET=your_cloudinary_environment_secret_key
+MONGO_URI=
+JWT_SECRET=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
 ```
-Replace ```your_mongodb_atlas_connection_string```,```your_jwt_secret_key```, ```your_cloudinary_environment_namewith```, ```your_cloudinary_environment_api``` and ```your_cloudinary_environment_secret_key``` with actual values.
+
 Use ```openssl rand -base64 32``` to create a JWT secret or provide a random string.
 
 
