@@ -2,10 +2,6 @@ import { useRef, useState } from "react";
 import { Image, Send, X } from "lucide-react";
 import toast from "react-hot-toast";
 
-/**
- * A generic, prop-driven message input component that handles text and image uploads.
- * It converts the image to a base64 Data URL before sending.
- */
 const MessageInput = ({ onSendMessage, placeholder = "Type a message..." }) => {
   const [text, setText] = useState("");
   const [imageFile, setImageFile] = useState(null); // State now holds the File object

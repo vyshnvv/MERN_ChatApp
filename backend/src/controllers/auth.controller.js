@@ -23,7 +23,6 @@ export const signup = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Generate random avatar using DiceBear API
     const avatarStyles = [
       "identicon",
       "bottts",
@@ -40,7 +39,7 @@ export const signup = async (req, res) => {
       fullName,
       email,
       password: hashedPassword,
-      profilePic, // Set generated avatar as default
+      profilePic, 
     });
 
     if (newUser) {
