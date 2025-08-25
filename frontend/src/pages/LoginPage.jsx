@@ -28,12 +28,34 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative overflow-hidden">
-      {/* Animated Background Elements */}
+    <div className="min-h-screen bg-base-200 relative overflow-hidden">
+      {/* Enhanced Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-cyan-400/10 to-blue-400/10 rounded-full blur-2xl animate-pulse delay-500"></div>
+        {/* Primary gradient orbs */}
+        <div className="absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full blur-2xl animate-pulse"></div>
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
+
+        {/* Additional subtle orbs for depth */}
+        <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-gradient-to-br from-primary/15 to-secondary/15 rounded-full blur-lg animate-pulse delay-2000"></div>
+        <div className="absolute top-1/4 left-1/3 w-24 h-24 bg-gradient-to-br from-secondary/15 to-accent/15 rounded-full blur-md animate-pulse delay-3000"></div>
+
+        {/* Floating particles effect */}
+        <div className="absolute inset-0">
+          {[...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className={`absolute w-2 h-2 bg-base-content/30 rounded-full animate-float-${
+                i % 3
+              }`}
+              style={{
+                left: `${25 + i * 20}%`,
+                top: `${30 + ((i * 15) % 30)}%`,
+                animationDelay: `${i * 2}s`,
+                animationDuration: `${10 + i * 2}s`,
+              }}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
@@ -41,48 +63,46 @@ const LoginPage = () => {
           {/* Left side - Hero Section */}
           <div className="hidden lg:flex flex-col justify-center space-y-8 px-8">
             <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full text-sm font-medium text-purple-700 shadow-sm">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-sm font-medium text-primary">
                 <Heart className="w-4 h-4" />
                 Welcome back!
               </div>
 
-              <h1 className="text-5xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-5xl font-bold text-base-content leading-tight">
                 Ready to
-                <span className="block bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  Continue Chatting?
-                </span>
+                <span className="block text-primary">Continue Chatting?</span>
               </h1>
 
-              <p className="text-xl text-gray-600 leading-relaxed">
+              <p className="text-xl text-base-content/70 leading-relaxed">
                 Sign in to reconnect with your friends, catch up on
                 conversations, and continue building amazing memories together.
               </p>
             </div>
 
             <div className="grid grid-cols-1 gap-6">
-              <div className="flex items-start gap-4 p-6 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Zap className="w-6 h-6 text-white" />
+              <div className="flex items-start gap-4 p-6 bg-base-100/60 backdrop-blur-sm rounded-2xl border border-base-300 shadow-lg">
+                <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg">
+                  <Zap className="w-6 h-6 text-primary-content" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">
+                  <h3 className="font-semibold text-base-content mb-1">
                     Lightning Fast
                   </h3>
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-base-content/70 text-sm">
                     Experience instant messaging with zero delays
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 p-6 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Shield className="w-6 h-6 text-white" />
+              <div className="flex items-start gap-4 p-6 bg-base-100/60 backdrop-blur-sm rounded-2xl border border-base-300 shadow-lg">
+                <div className="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center shadow-lg">
+                  <Shield className="w-6 h-6 text-secondary-content" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">
+                  <h3 className="font-semibold text-base-content mb-1">
                     Always Secure
                   </h3>
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-base-content/70 text-sm">
                     Your privacy and security are our top priorities
                   </p>
                 </div>
@@ -93,17 +113,17 @@ const LoginPage = () => {
           {/* Right side - Form */}
           <div className="flex items-center justify-center">
             <div className="w-full max-w-md">
-              <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 space-y-8">
+              <div className="bg-base-100/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-base-300 p-8 space-y-8">
                 {/* Logo */}
                 <div className="text-center space-y-4">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl shadow-xl">
-                    <MessageSquare className="w-8 h-8 text-white" />
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl shadow-xl">
+                    <MessageSquare className="w-8 h-8 text-primary-content" />
                   </div>
                   <div>
-                    <h2 className="text-3xl font-bold text-gray-900">
+                    <h2 className="text-3xl font-bold text-base-content">
                       Welcome Back
                     </h2>
-                    <p className="text-gray-600 mt-2">
+                    <p className="text-base-content/70 mt-2">
                       Sign in to your account
                     </p>
                   </div>
@@ -112,34 +132,34 @@ const LoginPage = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Email */}
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <label className="text-sm font-semibold text-base-content flex items-center gap-2">
                       <Mail className="w-4 h-4" />
                       Email Address
                     </label>
                     <div className="relative group">
                       <input
                         type="email"
-                        className="w-full px-4 py-4 bg-gray-50/50 border-2 border-gray-200 rounded-2xl focus:border-purple-500 focus:bg-white transition-all duration-300 outline-none text-gray-900 placeholder-gray-500"
+                        className="w-full px-4 py-4 bg-base-200 border-2 border-base-300 rounded-2xl focus:border-primary focus:bg-base-100 transition-all duration-300 outline-none text-base-content placeholder-base-content/50"
                         placeholder="Enter your email"
                         value={formData.email}
                         onChange={(e) =>
                           setFormData({ ...formData, email: e.target.value })
                         }
                       />
-                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                      <div className="absolute inset-0 rounded-2xl bg-primary/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                     </div>
                   </div>
 
                   {/* Password */}
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <label className="text-sm font-semibold text-base-content flex items-center gap-2">
                       <Lock className="w-4 h-4" />
                       Password
                     </label>
                     <div className="relative group">
                       <input
                         type={showPassword ? "text" : "password"}
-                        className="w-full px-4 py-4 pr-12 bg-gray-50/50 border-2 border-gray-200 rounded-2xl focus:border-purple-500 focus:bg-white transition-all duration-300 outline-none text-gray-900 placeholder-gray-500"
+                        className="w-full px-4 py-4 pr-12 bg-base-200 border-2 border-base-300 rounded-2xl focus:border-primary focus:bg-base-100 transition-all duration-300 outline-none text-base-content placeholder-base-content/50"
                         placeholder="Enter your password"
                         value={formData.password}
                         onChange={(e) =>
@@ -148,7 +168,7 @@ const LoginPage = () => {
                       />
                       <button
                         type="button"
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content transition-colors"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
@@ -157,7 +177,7 @@ const LoginPage = () => {
                           <Eye className="w-5 h-5" />
                         )}
                       </button>
-                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                      <div className="absolute inset-0 rounded-2xl bg-primary/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                     </div>
                   </div>
 
@@ -165,7 +185,7 @@ const LoginPage = () => {
                   <div className="flex justify-end">
                     <Link
                       to="/forgot-password"
-                      className="text-sm font-medium text-transparent bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text hover:from-purple-700 hover:to-blue-700 transition-all duration-300"
+                      className="text-sm font-medium text-primary hover:text-primary-focus transition-all duration-300"
                     >
                       Forgot password?
                     </Link>
@@ -173,7 +193,7 @@ const LoginPage = () => {
 
                   <button
                     type="submit"
-                    className="w-full py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5"
+                    className="w-full py-4 bg-primary hover:bg-primary-focus text-primary-content font-semibold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5"
                     disabled={isLoggingIn}
                   >
                     {isLoggingIn ? (
@@ -190,12 +210,12 @@ const LoginPage = () => {
                   </button>
                 </form>
 
-                <div className="text-center pt-4 border-t border-gray-200/50">
-                  <p className="text-gray-600">
+                <div className="text-center pt-4 border-t border-base-300/50">
+                  <p className="text-base-content/70">
                     Don't have an account?{" "}
                     <Link
                       to="/signup"
-                      className="font-semibold text-transparent bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text hover:from-purple-700 hover:to-blue-700 transition-all duration-300"
+                      className="font-semibold text-primary hover:text-primary-focus transition-all duration-300"
                     >
                       Create one here
                     </Link>
@@ -205,21 +225,59 @@ const LoginPage = () => {
 
               {/* Mobile Hero Content */}
               <div className="lg:hidden mt-8 text-center space-y-4">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full text-sm font-medium text-purple-700 shadow-sm">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-base-100/60 backdrop-blur-sm rounded-full text-sm font-medium text-primary shadow-sm">
                   <Heart className="w-4 h-4" />
                   Welcome back!
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900">
+                <h3 className="text-2xl font-bold text-base-content">
                   Ready to
-                  <span className="block bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                    Continue Chatting?
-                  </span>
+                  <span className="block text-primary">Continue Chatting?</span>
                 </h3>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Custom CSS animations */}
+      <style jsx>{`
+        @keyframes float-0 {
+          0%,
+          100% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          50% {
+            transform: translateY(-8px) rotate(180deg);
+          }
+        }
+        @keyframes float-1 {
+          0%,
+          100% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          50% {
+            transform: translateY(6px) rotate(-180deg);
+          }
+        }
+        @keyframes float-2 {
+          0%,
+          100% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          50% {
+            transform: translateY(-6px) rotate(90deg);
+          }
+        }
+        .animate-float-0 {
+          animation: float-0 12s ease-in-out infinite;
+        }
+        .animate-float-1 {
+          animation: float-1 14s ease-in-out infinite;
+        }
+        .animate-float-2 {
+          animation: float-2 16s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 };
