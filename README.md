@@ -97,4 +97,5 @@ cd frontend
 npm run dev
 ```
 
-https://mern-chatapp-lahq.onrender.com
+## 🌐 Live Demo
+[Check It Out](https://mern-chatapp-lahq.onrender.com)
