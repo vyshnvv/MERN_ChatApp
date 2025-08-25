@@ -52,12 +52,12 @@ cd MERN_ChatApp
 ### 2. Install Dependencies
 
 ```bash
-cd server
+cd backend
 npm install
 ```
 
 ```bash
-cd client
+cd frontend
 npm install
 ```
 
@@ -87,12 +87,14 @@ npm run build
 
 Backend (Express + Socket.IO)
 ```bash
-cd server
+cd backend
 npm run dev
 ```
 
 Frontend (React)
 ```bash
-cd client
+cd frontend
 npm run dev
 ```
+
+https://mern-chatapp-lahq.onrender.com
