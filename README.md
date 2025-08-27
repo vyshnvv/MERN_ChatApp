@@ -16,7 +16,6 @@ This platform allows users to send private messages, create invite-only chat roo
 - 📡 **Realtime Communication** – Powered by Socket.IO for seamless live chat  
 - 🟢 **Online/Offline Status** – See which friends are active  
 - 📨 **Message History** – Stores chat history in MongoDB  
-- 📱 **Responsive Design** – Works across desktop and mobile devices  
 
 ---
 
